@@ -9,25 +9,25 @@ class Material(models.Model):
     made_of = models.ManyToManyField('Manufacture', null=True, blank=True, related_name='products')
     count = models.FloatField(default=0)
     manufacturing_time = models.FloatField(default=0.1)
-
+    status = models.BooleanField(default=False)
 
     def produce(self, count):
         all_manufactures = self.made_of.select_related('material').all()
 
-        # # Проверяем, есть ли достаточно материалов для производства
-        # for manufacture in all_manufactures:
-        #     if manufacture.material.count < count * manufacture.cost:
-        #         raise AssertionError("Not enough material for production.")
+        Material.objects.filter(pk=self.pk).update(status=True)
 
         for _ in range(count):
-            sleep(self.manufacturing_time)
-            with transaction.atomic():
-                for manufacture in all_manufactures:
-                    manufacture.material.count = F('count') - manufacture.cost
-                    manufacture.material.save(update_fields=['count'])
+            # with transaction.atomic():
+            for manufacture in all_manufactures:
+                manufacture.material.count = F('count') - manufacture.cost
+                manufacture.material.save(update_fields=['count'])
 
-                self.count = F('count') + 1
-                self.save(update_fields=['count'])
+            sleep(self.manufacturing_time)
+
+            self.count = F('count') + 1
+            self.save(update_fields=['count'])
+
+        Material.objects.filter(pk=self.pk).update(status=False)
 
     def __str__(self):
         return self.name

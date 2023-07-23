@@ -26,6 +26,7 @@
         <th>Название</th>
         <th>Количество</th>
         <th>Производство</th>
+        <th>Статус</th>
     </tr>
     </thead>
     <tbody>
@@ -37,16 +38,35 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
+
+    var previousCounts = {};
+
     function refreshMaterials() {
         $.getJSON('/api/materials', function (data) {
             data.forEach(function (material) {
                 if ($('#material-' + material.id).length === 0) {
                     var row = '<tr id="material-' + material.id + '"><td>' + material.name + '</td><td class="count"></td><td>' +
                         '<input type="number" class="produce-input" data-id="' + material.id + '" name="count" min="1">' +
-                        '</td></tr>';
+                        '</td><td class="status"></td></tr>';
                     $('#materials-table tbody').append(row);
                 }
+                var currentCount = parseFloat($('#material-' + material.id + ' .count').text());
                 $('#material-' + material.id + ' .count').text(material.count);
+
+                // Обновляем статус
+                var statusElement = $('#material-' + material.id + ' .status');
+                if (material.count <= 0) {
+                    statusElement.text('🔴').css('color', 'red');
+                } else if (previousCounts[material.id] && material.status) {
+                    statusElement.text('🟢').css('color', 'green');
+                } else if (previousCounts[material.id] && material.count < previousCounts[material.id]) {
+                    statusElement.text('🔴').css('color', 'red');
+                } else {
+                    statusElement.text('🟡').css('color', 'yellow');
+                }
+
+                // Обновляем предыдущее значение count для этого материала
+                previousCounts[material.id] = currentCount;
             });
         });
     }

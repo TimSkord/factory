@@ -13,7 +13,7 @@ class MaterialsAPIView(APIView):
     def get(self, request, *args, **kwargs):
         try:
             materials = Material.objects.all()
-            data = [{'name': m.name, 'count': m.count, 'id': m.id} for m in materials]
+            data = [{'name': m.name, 'count': m.count, 'id': m.id, 'status': m.status} for m in materials]
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
