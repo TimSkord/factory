@@ -1,6 +1,6 @@
 from time import sleep
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F
 
 
@@ -12,17 +12,21 @@ class Material(models.Model):
 
     def produce(self, count):
         all_manufactures = self.made_of.select_related('material').all()
-        for manufacture in all_manufactures:
-            if manufacture.material.count < count * manufacture.cost:
-                raise AssertionError
+
+        # # Проверяем, есть ли достаточно материалов для производства
+        # for manufacture in all_manufactures:
+        #     if manufacture.material.count < count * manufacture.cost:
+        #         raise AssertionError("Not enough material for production.")
 
         for _ in range(count):
             sleep(self.manufacturing_time)
-            for manufacture in all_manufactures:
-                manufacture.material.count = F('count') - manufacture.cost
-                manufacture.material.save(update_fields=['count'])
-            self.count = F('count') + 1
-            self.save(update_fields=['count'])
+            with transaction.atomic():
+                for manufacture in all_manufactures:
+                    manufacture.material.count = F('count') - manufacture.cost
+                    manufacture.material.save(update_fields=['count'])
+
+                self.count = F('count') + 1
+                self.save(update_fields=['count'])
 
     def __str__(self):
         return self.name

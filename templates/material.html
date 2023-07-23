@@ -1,69 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Materials</title>
+    <title>Материалы</title>
     <style>
         body {
             font-family: Arial, sans-serif;
         }
+
         table {
             width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
         }
+
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
         }
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-    <h1>Materials</h1>
+<h2>Материалы</h2>
 
-    <table id="materials-table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Здесь будут материалы -->
-        </tbody>
-    </table>
+<table id="materials-table">
+    <thead>
+    <tr>
+        <th>Название</th>
+        <th>Количество</th>
+        <th>Произвести</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Здесь будут материалы -->
+    </tbody>
+</table>
 
-    <script>
-        function fetchData() {
-            $.ajax({
-                url: '/api/materials/',  // TODO: указать правильный путь к вашему API
-                type: 'GET',
-                success: function(data) {
-                    // Очищаем таблицу
-                    $('#materials-table tbody').empty();
-
-                    // Добавляем все материалы в таблицу
-                    data.forEach(function(material) {
-                        $('#materials-table tbody').append('<tr><td>' + material.name + '</td><td>' + material.count + '</td></tr>');
-                    });
-                },
-                complete: function() {
-                    // Запрашиваем данные каждые 0.5 секунд
-                    setTimeout(fetchData, 500);
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    function refreshMaterials() {
+        $.getJSON('/api/materials', function (data) {
+            data.forEach(function (material) {
+                // Если строка для этого материала еще не существует, создайте ее
+                if ($('#material-' + material.id).length === 0) {
+                    var row = '<tr id="material-' + material.id + '"><td>' + material.name + '</td><td class="count"></td><td>' +
+                        '<form class="produce-form" data-id="' + material.id + '">' +
+                        '<input type="number" name="count" min="1" required>' +
+                        '<button type="submit">Произвести</button>' +
+                        '</form></td></tr>';
+                    $('#materials-table tbody').append(row);
                 }
+                // Обновите количество материала
+                $('#material-' + material.id + ' .count').text(material.count);
             });
-        }
+        });
+    }
 
-        // Вызываем fetchData при загрузке страницы
-        $(document).ready(fetchData);
-    </script>
+    setInterval(refreshMaterials, 1000);  // Обновляйте каждую секунду
+
+    $(document).on('submit', '.produce-form', function (e) {
+        e.preventDefault();
+        var count = $(this).find('input[name="count"]').val();
+        var id = $(this).data('id');
+        $.post('/api/materials/' + id + '/produce', {count: count}, refreshMaterials);
+    });
+
+    setInterval(refreshMaterials, 500); // обновляем каждые 5 секунд
+    refreshMaterials(); // обновляем сразу при загрузке страницы
+</script>
 </body>
 </html>
