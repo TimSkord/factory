@@ -10,6 +10,7 @@ class Material(models.Model):
     count = models.FloatField(default=0)
     manufacturing_time = models.FloatField(default=0.1)
 
+
     def produce(self, count):
         all_manufactures = self.made_of.select_related('material').all()
 

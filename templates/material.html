@@ -19,36 +19,33 @@
     </style>
 </head>
 <body>
-<h2>Материалы</h2>
-
-<table id="materials-table">
+<h1>Материалы</h1>
+<table id="materials-table" class="table">
     <thead>
     <tr>
         <th>Название</th>
         <th>Количество</th>
-        <th>Произвести</th>
+        <th>Производство</th>
     </tr>
     </thead>
     <tbody>
     <!-- Здесь будут материалы -->
     </tbody>
 </table>
+<!-- Одна общая кнопка для производства -->
+<button id="produce-button">Производство</button>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     function refreshMaterials() {
         $.getJSON('/api/materials', function (data) {
             data.forEach(function (material) {
-                // Если строка для этого материала еще не существует, создайте ее
                 if ($('#material-' + material.id).length === 0) {
                     var row = '<tr id="material-' + material.id + '"><td>' + material.name + '</td><td class="count"></td><td>' +
-                        '<form class="produce-form" data-id="' + material.id + '">' +
-                        '<input type="number" name="count" min="1" required>' +
-                        '<button type="submit">Произвести</button>' +
-                        '</form></td></tr>';
+                        '<input type="number" class="produce-input" data-id="' + material.id + '" name="count" min="1">' +
+                        '</td></tr>';
                     $('#materials-table tbody').append(row);
                 }
-                // Обновите количество материала
                 $('#material-' + material.id + ' .count').text(material.count);
             });
         });
@@ -56,11 +53,25 @@
 
     setInterval(refreshMaterials, 1000);  // Обновляйте каждую секунду
 
-    $(document).on('submit', '.produce-form', function (e) {
-        e.preventDefault();
-        var count = $(this).find('input[name="count"]').val();
-        var id = $(this).data('id');
-        $.post('/api/materials/' + id + '/produce', {count: count}, refreshMaterials);
+    $('#produce-button').click(function () {
+        // Собираем данные из всех полей ввода
+        var data = $('.produce-input').map(function () {
+            return {
+                id: $(this).data('id'),
+                count: $(this).val()
+            };
+        }).get();
+
+        // Отправляем данные на сервер
+        data.forEach(function (item) {
+            $.post('/api/materials/' + item.id + '/produce', {count: item.count});
+        });
+
+        // Очищаем все поля ввода
+        $('.produce-input').val('');
+
+        // Обновляем материалы
+        refreshMaterials();
     });
 
     setInterval(refreshMaterials, 500); // обновляем каждые 5 секунд
