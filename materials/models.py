@@ -1,5 +1,7 @@
-from django.db import models
 from time import sleep
+
+from django.db import models
+from django.db.models import F
 
 
 class Material(models.Model):
@@ -17,18 +19,10 @@ class Material(models.Model):
         for _ in range(count):
             sleep(self.manufacturing_time)
             for manufacture in all_manufactures:
-                manufacture.material.count -= manufacture.cost
-                manufacture.material.save()
-            self.count += 1
-            self.save()
-
-                # for manufacture in all_manufactures:
-        #     manufacture.material.count -= count * manufacture.cost
-        #     manufacture.material.save()
-
-        # sleep(self.manufacturing_time * count)
-        # self.count += count
-        # self.save()
+                manufacture.material.count = F('count') - manufacture.cost
+                manufacture.material.save(update_fields=['count'])
+            self.count = F('count') + 1
+            self.save(update_fields=['count'])
 
     def __str__(self):
         return self.name

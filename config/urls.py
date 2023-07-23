@@ -17,10 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from materials.views import MaterialAPIView, material_page
+from materials.views import MaterialsAPIView, material_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('material/', material_page),
-    path('api/material/', MaterialAPIView.as_view()),
+    path('api/materials/', MaterialsAPIView.as_view()),
 ]

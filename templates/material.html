@@ -1,27 +1,63 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Material Details</title>
+    <title>Materials</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-    <h1>Material Details</h1>
+    <h1>Materials</h1>
 
-    <p>Name: <span id="material-name"></span></p>
-    <p>Count: <span id="material-count"></span></p>
+    <table id="materials-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Здесь будут материалы -->
+        </tbody>
+    </table>
 
     <script>
         function fetchData() {
             $.ajax({
-                url: '/api/material/',  // TODO: указать правильный путь к вашему API
+                url: '/api/materials/',  // TODO: указать правильный путь к вашему API
                 type: 'GET',
                 success: function(data) {
-                    $('#material-name').text(data.name);
-                    $('#material-count').text(data.count);
+                    // Очищаем таблицу
+                    $('#materials-table tbody').empty();
+
+                    // Добавляем все материалы в таблицу
+                    data.forEach(function(material) {
+                        $('#materials-table tbody').append('<tr><td>' + material.name + '</td><td>' + material.count + '</td></tr>');
+                    });
                 },
                 complete: function() {
-                    // Запрашиваем данные каждые 1 секунд
-                    setTimeout(fetchData, 1000);
+                    // Запрашиваем данные каждые 0.5 секунд
+                    setTimeout(fetchData, 500);
                 }
             });
         }
