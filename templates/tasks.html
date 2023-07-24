@@ -47,6 +47,44 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        #new-task-form {
+            display: flex;
+            flex-direction: column;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f2f2f2;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        }
+
+        #new-task-form label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        #new-task-form select,
+        #new-task-form input[type="text"] {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #new-task-form input[type="submit"] {
+            cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            color: white;
+            background-color: #007BFF;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        #new-task-form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -71,10 +109,14 @@
 {#</form>#}
 
 <form id="new-task-form">
-    <label for="material-id">Material ID:</label><br>
-    <input type="text" id="material-id" name="material-id"><br>
+    <label for="material-id">Material:</label><br>
+    <select id="material-id" name="material-id">
+        {% for material in materials %}
+            <option value="{{ material.id }}">{{ material.name }}</option>
+        {% endfor %}
+    </select>
     <label for="count">Count:</label><br>
-    <input type="text" id="count" name="count"><br>
+    <input type="text" id="count" name="count">
     <input type="submit" value="Create Task">
 </form>
 

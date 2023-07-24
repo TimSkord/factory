@@ -97,7 +97,8 @@ class ActiveTaskIDsView(View):
 
 
 def tasks_page(request):
-    return render(request, 'tasks.html')
+    materials = Material.objects.values('name', 'id')
+    return render(request, 'tasks.html', context={'materials': materials})
 
 
 def tasks_stop(request, task_id):
