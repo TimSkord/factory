@@ -1,7 +1,6 @@
 from celery.result import AsyncResult
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.shortcuts import render
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
@@ -11,9 +10,9 @@ from rest_framework.views import APIView
 
 from config.celery import app
 from config.redis import r
-from .models import Material
-from .serializers import MaterialSerializer
-from .tasks import produce_material_task
+from materials.models import Material
+from materials.serializers import MaterialSerializer
+from materials.tasks import produce_material_task
 
 
 class MaterialsAPIView(APIView):
@@ -24,10 +23,6 @@ class MaterialsAPIView(APIView):
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-def material_page(request):
-    return render(request, 'material.html')  # material.html - это ваш HTML шаблон
 
 
 @csrf_exempt
@@ -94,11 +89,6 @@ class ActiveTaskIDsView(View):
     def get(self, request):
         task_ids = [task_id.decode('utf-8') for task_id in r.lrange('tasks', 0, -1)]
         return JsonResponse({'active_task_ids': task_ids})
-
-
-def tasks_page(request):
-    materials = Material.objects.values('name', 'id')
-    return render(request, 'tasks.html', context={'materials': materials})
 
 
 def tasks_stop(request, task_id):

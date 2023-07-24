@@ -1,6 +1,6 @@
 from time import sleep
 
-from django.db import models, transaction
+from django.db import models
 from django.db.models import F
 
 

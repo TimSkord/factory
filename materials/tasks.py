@@ -2,23 +2,11 @@ from time import sleep
 
 from celery import current_task
 from celery import shared_task
-from celery.signals import task_prerun, task_postrun
 from celery_progress.backend import ProgressRecorder
 from django.db import transaction
 from django.db.models import F
 
-from config.redis import r
 from .models import Material
-
-
-# @task_prerun.connect
-# def task_prerun(task_id, *args, **kwargs):
-#     r.lpush('tasks', task_id)
-#
-#
-# @task_postrun.connect
-# def task_postrun(task_id, *args, **kwargs):
-#     r.lrem('tasks', 1, task_id)
 
 
 @shared_task(bind=True)
