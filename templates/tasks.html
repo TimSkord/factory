@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materials Production</title>
+    <style>
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .task-card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: #1a73e8;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            border-radius: 3px;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+        }
+
+        .stop-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>Materials Production</h1>
+
+<div id="tasks-grid" class="tasks-grid">
+    <!-- Tasks will be rendered here -->
+</div>
+
+{#<form id="taskForm">#}
+{#    <div class="form-group">#}
+{#        <label for="materialSelect">Material:</label>#}
+{#        <select class="form-control" id="materialSelect" name="material">#}
+{#            <!-- Options will be filled by JavaScript -->#}
+{#        </select>#}
+{#    </div>#}
+{#    <div class="form-group">#}
+{#        <label for="countInput">Count:</label>#}
+{#        <input type="number" class="form-control" id="countInput" name="count">#}
+{#    </div>#}
+{#    <button type="submit" class="btn btn-primary">Start Task</button>#}
+{#</form>#}
+
+<form id="new-task-form">
+    <label for="material-id">Material ID:</label><br>
+    <input type="text" id="material-id" name="material-id"><br>
+    <label for="count">Count:</label><br>
+    <input type="text" id="count" name="count"><br>
+    <input type="submit" value="Create Task">
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    let tasks = {};
+
+    function refreshTasks() {
+        $.get("/api/materials/tasks/info", function (data) {
+            const activeTasks = new Set(data.tasks.map(task => task.id));
+
+            // Delete tasks that are no longer active
+            Object.keys(tasks).forEach(taskId => {
+                if (!activeTasks.has(taskId)) {
+                    tasks[taskId].remove();
+                    delete tasks[taskId];
+                }
+            });
+
+            // Update existing tasks and add new ones
+            data.tasks.forEach(task => {
+                if (!(task.id in tasks)) {
+                    const taskCard = $(`
+                            <div class="task-card">
+                                <h3>${task.task} (count: ${task.produced})</h3>
+                                <h4>ID: ${task.id}</h4>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width:${task.progress}%;">${task.progress.toFixed(2)}%</div>
+                                </div>
+                                <button class="stop-btn" data-task-id="${task.id}">Stop</button>
+                            </div>
+                        `);
+                    $("#tasks-grid").append(taskCard);
+                    tasks[task.id] = taskCard;
+                } else {
+                    tasks[task.id].find(".progress-bar").css("width", task.progress + "%").text(task.progress.toFixed(2) + "%");
+                }
+            });
+        });
+    }
+
+    $("#new-task-form").submit(function (event) {
+        event.preventDefault();
+        const materialId = $("#material-id").val();
+        const count = $("#count").val();
+        $.post(`/api/materials/tasks/${materialId}/produce`, {count: count}, function () {
+            refreshTasks();
+        });
+    });
+
+    // Add event listener for stop buttons
+    $(document).on("click", ".stop-btn", function () {
+        const taskId = $(this).data("task-id");
+        $.post(`/api/tasks/${taskId}/stop/`, function () {
+            refreshTasks();
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        var materialSelect = document.getElementById('materialSelect');
+
+        fetch('/api/materials/')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(material => {
+                    var opt = document.createElement('option');
+                    opt.value = material.id;
+                    opt.innerHTML = material.name;
+                    materialSelect.appendChild(opt);
+                });
+            });
+    });
+    refreshTasks();
+    setInterval(refreshTasks, 500);  // Refresh every 5 seconds
+</script>
+</body>
+</html>

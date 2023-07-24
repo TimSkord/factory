@@ -17,11 +17,29 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from materials.views import MaterialsAPIView, material_page, produce_material
+from materials.views import (
+    MaterialsAPIView,
+    material_page,
+    produce_material,
+    celery_produce_material,
+    get_task_info,
+    get_tasks_info,
+    tasks_page,
+    tasks_stop,
+    ActiveTaskIDsView,
+    MaterialList,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('material/', material_page),
     path('api/materials/', MaterialsAPIView.as_view()),
     path('api/materials/<int:material_id>/produce', produce_material),
+    path('api/materials/tasks/<int:material_id>/produce', celery_produce_material),
+    path('api/materials/tasks/<str:task_id>/info', get_task_info),
+    path('api/materials/tasks/info', get_tasks_info),
+    path('tasks/', tasks_page),
+    path('api/tasks/<str:task_id>/stop/', tasks_stop),
+    path('api/materials/', MaterialList.as_view(), name='material_list'),
+    path('active-task-ids/', ActiveTaskIDsView.as_view(), name='active-task-ids'),
 ]

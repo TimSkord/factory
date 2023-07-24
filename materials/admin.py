@@ -25,7 +25,8 @@ def produce_50(modeladmin, request, queryset):
 
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('name', 'count', 'manufacturing_time')
+    list_display = ('id', 'name', 'count', 'manufacturing_time', 'status')
+    list_display_links = ('name',)
     actions = (produce_1, produce_5, produce_10, produce_50)
 
 

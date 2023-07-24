@@ -1,12 +1,19 @@
+from celery.result import AsyncResult
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import generics
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config.celery import app
+from config.redis import r
 from .models import Material
+from .serializers import MaterialSerializer
+from .tasks import produce_material_task
 
 
 class MaterialsAPIView(APIView):
@@ -47,3 +54,58 @@ def produce_material(request, material_id):
 
     else:
         return JsonResponse({'error': 'Недопустимый метод запроса'}, status=405)
+
+
+def celery_produce_material(request, material_id):
+    count = int(request.POST.get('count'))
+    task = produce_material_task.delay(material_id, count)
+    return JsonResponse({"task_id": task.task_id})
+
+
+def get_task_info(request, task_id):
+    task = AsyncResult(task_id)
+    info = task.info if task.state == 'PROGRESS' else {}
+    return JsonResponse({
+        'id': info.get('id'),
+        'task': info.get('task'),
+        'task_state': task.state,
+        'progress': info.get('progress'),
+        'produced': info.get('produced'),
+    })
+
+
+def get_tasks_info(request):
+    task_ids = [task_id.decode('utf-8') for task_id in r.lrange('tasks', 0, -1)]
+    tasks_info = []
+    for task_id in task_ids:
+        task = AsyncResult(task_id)
+        info = task.info if task.state == 'PROGRESS' else {}
+        tasks_info.append({
+            'id': info.get('id'),
+            'task': info.get('task'),
+            'task_state': task.state,
+            'progress': info.get('progress'),
+            'produced': info.get('produced'),
+        })
+    return JsonResponse({"tasks": tasks_info})
+
+
+class ActiveTaskIDsView(View):
+    def get(self, request):
+        task_ids = [task_id.decode('utf-8') for task_id in r.lrange('tasks', 0, -1)]
+        return JsonResponse({'active_task_ids': task_ids})
+
+
+def tasks_page(request):
+    return render(request, 'tasks.html')
+
+
+def tasks_stop(request, task_id):
+    app.control.revoke(task_id, terminate=True)
+    r.lrem('tasks', 1, task_id)
+    return JsonResponse({'stopped': task_id})
+
+
+class MaterialList(generics.ListAPIView):
+    queryset = Material.objects.all()
+    serializer_class = MaterialSerializer
