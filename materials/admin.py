@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from materials.models import *
+from materials.models import Material, Manufacture
 
 
 def produce_1(modeladmin, request, queryset):
@@ -25,8 +25,8 @@ def produce_50(modeladmin, request, queryset):
 
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'count', 'manufacturing_time', 'status')
-    list_display_links = ('name',)
+    list_display = ("id", "name", "count", "manufacturing_time", "status")
+    list_display_links = ("name",)
     actions = (produce_1, produce_5, produce_10, produce_50)
 
 

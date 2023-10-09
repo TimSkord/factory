@@ -31,15 +31,15 @@ from materials.views import (
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('material/', material_page),
-    path('api/materials/', MaterialsAPIView.as_view()),
-    path('api/materials/<int:material_id>/produce', produce_material),
-    path('api/materials/tasks/<int:material_id>/produce', celery_produce_material),
-    path('api/materials/tasks/<str:task_id>/info', get_task_info),
-    path('api/materials/tasks/info', get_tasks_info),
-    path('tasks/', tasks_page),
-    path('api/tasks/<str:task_id>/stop/', tasks_stop),
-    path('api/materials/', MaterialList.as_view(), name='material_list'),
-    path('active-task-ids/', ActiveTaskIDsView.as_view(), name='active-task-ids'),
+    path("admin/", admin.site.urls),
+    path("material/", material_page),
+    path("api/materials/", MaterialsAPIView.as_view()),
+    path("api/materials/<int:material_id>/produce", produce_material),
+    path("api/materials/tasks/<int:material_id>/produce", celery_produce_material),
+    path("api/materials/tasks/<str:task_id>/info", get_task_info),
+    path("api/materials/tasks/info", get_tasks_info),
+    path("tasks/", tasks_page),
+    path("api/tasks/<str:task_id>/stop/", tasks_stop),
+    path("api/materials/", MaterialList.as_view(), name="material_list"),
+    path("active-task-ids/", ActiveTaskIDsView.as_view(), name="active-task-ids"),
 ]
