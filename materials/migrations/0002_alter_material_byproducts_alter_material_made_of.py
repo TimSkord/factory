@@ -5,18 +5,25 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('materials', '0001_initial'),
+        ("materials", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='material',
-            name='byproducts',
-            field=models.ManyToManyField(blank=True, null=True, related_name='parent', to='materials.material'),
+            model_name="material",
+            name="byproducts",
+            field=models.ManyToManyField(
+                blank=True, null=True, related_name="parent", to="materials.material"
+            ),
         ),
         migrations.AlterField(
-            model_name='material',
-            name='made_of',
-            field=models.ManyToManyField(blank=True, null=True, related_name='products', to='materials.manufacture'),
+            model_name="material",
+            name="made_of",
+            field=models.ManyToManyField(
+                blank=True,
+                null=True,
+                related_name="products",
+                to="materials.manufacture",
+            ),
         ),
     ]

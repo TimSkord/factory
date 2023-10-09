@@ -7,32 +7,60 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Manufacture',
+            name="Manufacture",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cost', models.FloatField(default=1)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("cost", models.FloatField(default=1)),
             ],
         ),
         migrations.CreateModel(
-            name='Material',
+            name="Material",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=300)),
-                ('count', models.FloatField(default=0)),
-                ('manufacturing_time', models.FloatField(default=0.1)),
-                ('byproducts', models.ManyToManyField(null=True, related_name='parent', to='materials.material')),
-                ('made_of', models.ManyToManyField(null=True, related_name='products', to='materials.manufacture')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=300)),
+                ("count", models.FloatField(default=0)),
+                ("manufacturing_time", models.FloatField(default=0.1)),
+                (
+                    "byproducts",
+                    models.ManyToManyField(
+                        null=True, related_name="parent", to="materials.material"
+                    ),
+                ),
+                (
+                    "made_of",
+                    models.ManyToManyField(
+                        null=True, related_name="products", to="materials.manufacture"
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='manufacture',
-            name='material',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='in_process',
-                                    to='materials.material'),
+            model_name="manufacture",
+            name="material",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="in_process",
+                to="materials.material",
+            ),
         ),
     ]

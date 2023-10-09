@@ -5,13 +5,13 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('materials', '0003_remove_material_byproducts'),
+        ("materials", "0003_remove_material_byproducts"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='material',
-            name='status',
+            model_name="material",
+            name="status",
             field=models.BooleanField(default=False),
         ),
     ]
