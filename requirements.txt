@@ -27,3 +27,7 @@ tzdata==2023.3
 urllib3==2.0.4
 vine==5.0.0
 wcwidth==0.2.6
+flake8==6.0.0
+flake8-black==0.3.6
+Flake8-pyproject==1.2.2
+
